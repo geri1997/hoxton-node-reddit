@@ -1,5 +1,5 @@
 import Database from 'better-sqlite3';
-import { IPost, ISubreddit, IUser } from './types';
+import { IComment, IPost, ISubreddit, IUser } from './types';
 
 const db = new Database('./data.db', {
    verbose: console.log,
@@ -42,3 +42,12 @@ export const getSubredditBySpecificX = (
    db
       .prepare(`SELECT * FROM subreddits WHERE UPPER(${column})= UPPER(?);`)
       .get(value);
+
+      export const getCommentsBySpecificX = (
+        column: string,
+        value: string
+     ): IComment[] =>
+        db
+           .prepare(`SELECT * FROM comments WHERE UPPER(${column})= UPPER(?);`)
+           .all(value);
+     
