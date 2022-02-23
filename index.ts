@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
-import { createUser, getUserBySpecificX } from './dbUtils';
+import { createUser, getAllPostsOrderedByUpvotes, getCommentsBySpecificX, getSubredditBySpecificX, getUserBySpecificX } from './dbUtils';
+import { IPost } from './types';
 
 const PORT = 3009;
 const app = express();
@@ -35,6 +36,24 @@ app.post('/sign-up', (req, res) => {
 
    res.status(201).send(getUserBySpecificX('email', email));
 });
+
+app.get('/posts',(req,res)=>{
+const posts:IPost[] = getAllPostsOrderedByUpvotes()
+
+for (const post of posts) {
+    const postSubreddit = getSubredditBySpecificX('id',post.subredditId!.toString())
+    const postUser = getUserBySpecificX('id',post.userId!.toString())
+    const postComments = getCommentsBySpecificX('postId',post.id!.toString())
+    post.subreddit = postSubreddit
+    post.user = postUser
+    post.comments = postComments
+    delete post.subredditId
+    delete post.userId
+    console.log(post)
+}
+
+    res.send(posts)
+})
 
 app.listen(PORT, () => {
    console.log(`Server running on http://localhost:${PORT}`);
