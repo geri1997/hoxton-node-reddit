@@ -1,6 +1,12 @@
 import express from 'express';
 import cors from 'cors';
-import { createUser, getAllPostsOrderedByUpvotes, getCommentsBySpecificX, getSubredditBySpecificX, getUserBySpecificX } from './dbUtils';
+import {
+   createUser,
+   getAllPostsOrderedByUpvotes,
+   getCommentsBySpecificX,
+   getSubredditBySpecificX,
+   getUserBySpecificX,
+} from './dbUtils';
 import { IPost } from './types';
 
 const PORT = 3009;
@@ -16,7 +22,7 @@ app.post('/log-in', (req, res) => {
       return res.send({ error: `A user with this email doesn't exist` });
    if (user && user.password !== password)
       return res.send({ error: `Wrong password` });
-
+   delete user.password;
    res.send(user);
 });
 
@@ -34,26 +40,33 @@ app.post('/sign-up', (req, res) => {
          .status(400)
          .send({ error: `Missing needed properties to create a user` });
 
-   res.status(201).send(getUserBySpecificX('email', email));
+   const userToSend = getUserBySpecificX('email', email);
+   delete userToSend.password;
+   res.status(201).send(userToSend);
 });
 
-app.get('/posts',(req,res)=>{
-const posts:IPost[] = getAllPostsOrderedByUpvotes()
+app.get('/posts', (req, res) => {
+   const posts: IPost[] = getAllPostsOrderedByUpvotes();
 
-for (const post of posts) {
-    const postSubreddit = getSubredditBySpecificX('id',post.subredditId!.toString())
-    const postUser = getUserBySpecificX('id',post.userId!.toString())
-    const postComments = getCommentsBySpecificX('postId',post.id!.toString())
-    post.subreddit = postSubreddit
-    post.user = postUser
-    post.comments = postComments
-    delete post.subredditId
-    delete post.userId
-    console.log(post)
-}
+   for (const post of posts) {
+      const postSubreddit = getSubredditBySpecificX(
+         'id',
+         post.subredditId!.toString()
+      );
+      const postUser = getUserBySpecificX('id', post.userId!.toString());
+      const postComments = getCommentsBySpecificX(
+         'postId',
+         post.id!.toString()
+      );
+      post.subreddit = postSubreddit;
+      post.user = postUser;
+      post.comments = postComments;
+      delete post.subredditId;
+      delete post.userId;
+   }
 
-    res.send(posts)
-})
+   res.send(posts);
+});
 
 app.listen(PORT, () => {
    console.log(`Server running on http://localhost:${PORT}`);
