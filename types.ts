@@ -7,11 +7,14 @@ export interface IUser {
 
 export interface IPost {
    id?: number;
-   userId: number;
+   userId?: number;
    content: string;
    upvotes?: number;
    downvotes?: number;
-   subredditId: number;
+   subredditId?: number;
+   subreddit?:ISubreddit
+   user?:IUser
+   comments?:IComment[]
 }
 
 export interface ISubreddit {
