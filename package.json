@@ -2,7 +2,7 @@
   "name": "hoxton-node-reddit",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
     "start": "nodemon index.ts"
   },

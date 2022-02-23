@@ -22,8 +22,8 @@ CREATE TABLE "users" (
     "id" INTEGER PRIMARY KEY,
     "userId" INTEGER  NOT NULL,
     "content" TEXT NOT NULL,
-    "upvotes" INTEGER NOT NULL,
-    "downvotes" INTEGER NOT NULL,
+    "upvotes" INTEGER DEFAULT "0" NOT NULL,
+    "downvotes" INTEGER DEFAULT "0" NOT NULL, 
     "subredditId" INTEGER NOT NULL,
     FOREIGN KEY ("userId") REFERENCES "users" ("id"),
     FOREIGN KEY ("subredditId") REFERENCES "subreddits" ("id")
@@ -33,8 +33,8 @@ CREATE TABLE "users" (
     "id" INTEGER PRIMARY KEY,
     "postId" INTEGER  NOT NULL,
     "content" TEXT NOT NULL,
-    "upvotes" INTEGER NOT NULL,
-    "downvotes" INTEGER NOT NULL,
+    "upvotes" INTEGER DEFAULT "0" NOT NULL,
+    "downvotes" INTEGER DEFAULT "0" NOT NULL,
     "userId" INTEGER  NOT NULL,
     FOREIGN KEY ("postId") REFERENCES "posts" ("id"),
     FOREIGN KEY ("userId") REFERENCES "users" ("id")
