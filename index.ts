@@ -7,14 +7,18 @@ import {
    downvotePost,
    getAllPostsOrderedByUpvotes,
    getAllSubreddits,
+   getCommentBySpecificX,
    getCommentsBySpecificX,
+   getCommentUpvote,
    getPostBySpecificX,
    getPostDownvote,
    getPostUpvote,
    getSubredditBySpecificX,
    getUserBySpecificX,
-   removeDownvote,
-   removeUpvote,
+   removeCommentUpvote,
+   removePostDownvote,
+   removePostUpvote,
+   upvoteComment,
    upvotePost,
 } from './dbUtils';
 import { IPost } from './types';
@@ -162,7 +166,7 @@ app.patch('/upvote-post/:id', (req, res) => {
          .status(404)
          .send({ error: `A user with id '${userId}' doesn't exist.` });
    if (getPostUpvote(userId, +postId)) {
-      removeUpvote(+postId, userId);
+      removePostUpvote(+postId, userId);
       return res.send(getPostBySpecificX('id',postId))
    }
    upvotePost(userId, Number(postId));
@@ -182,12 +186,52 @@ app.patch('/downvote-post/:id', (req, res) => {
           .status(404)
           .send({ error: `A user with id '${userId}' doesn't exist.` });
     if (getPostDownvote(userId, +postId)) {
-        removeDownvote(+postId, userId);
+        removePostDownvote(+postId, userId);
        return res.send(getPostBySpecificX('id',postId))
     }
     downvotePost(userId, Number(postId));
     res.send(getPostBySpecificX('id', postId.toString())); //needs to be a string cuz i added an UPPER to the value
  });
+
+ app.patch('/upvote-comment/:id', (req, res) => {
+    const commentId = req.params.id;
+    const { userId } = req.body;
+    if(!userId)return res.status(400).send({error:`Missing or invalid user Id!`})
+    if (!getCommentBySpecificX('id', commentId))
+       return res
+          .status(404)
+          .send({ error: `Comment with id '${commentId}' doesn't exist.` });
+    if (!getUserBySpecificX('id', userId.toString()))
+       return res
+          .status(404)
+          .send({ error: `A user with id '${userId}' doesn't exist.` });
+    if (getCommentUpvote(userId, +commentId)) {
+       removeCommentUpvote(+commentId, userId);
+       return res.send(getCommentBySpecificX('id',commentId))
+    }
+    upvoteComment(userId, Number(commentId));
+    res.send(getCommentBySpecificX('id', commentId.toString())); //needs to be a string cuz i added an UPPER to the value
+ });
+ 
+//  app.patch('/downvote-post/:id', (req, res) => {
+//      const postId = req.params.id;
+//      const { userId } = req.body;
+//      if(!userId)return res.status(400).send({error:`Missing or invalid user Id!`})
+//      if (!getPostBySpecificX('id', postId))
+//         return res
+//            .status(404)
+//            .send({ error: `Post with id '${postId}' doesn't exist.` });
+//      if (!getUserBySpecificX('id', userId.toString()))
+//         return res
+//            .status(404)
+//            .send({ error: `A user with id '${userId}' doesn't exist.` });
+//      if (getPostDownvote(userId, +postId)) {
+//          removeDownvote(+postId, userId);
+//         return res.send(getPostBySpecificX('id',postId))
+//      }
+//      downvotePost(userId, Number(postId));
+//      res.send(getPostBySpecificX('id', postId.toString())); //needs to be a string cuz i added an UPPER to the value
+//   });
 
 app.listen(PORT, () => {
    console.log(`Server running on http://localhost:${PORT}`);

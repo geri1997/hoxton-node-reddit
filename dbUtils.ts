@@ -62,6 +62,11 @@ export const getPostBySpecificX = (column: string, value: string): IPost =>
       .prepare(`SELECT * FROM posts WHERE UPPER(${column})= UPPER(?);`)
       .get(value);
 
+export const getCommentBySpecificX = (column: string, value: string): IUser =>
+   db
+      .prepare(`SELECT * FROM comments WHERE UPPER(${column})= UPPER(?);`)
+      .get(value);
+
 export const upvotePost = (userId: number, postId: number) => {
    db.prepare(
       `INSERT INTO postUserUpvotes (userId,postId) VALUES (?,?);   `
@@ -81,14 +86,15 @@ export const downvotePost = (userId: number, postId: number) => {
         SET downvotes = downvotes + 1 WHERE id=?;`
    ).run(postId);
 };
-// export const upvoteComment = (userId: number, commentId: number) =>
-//    db
-//       .prepare(
-//          `INSERT INTO userCommentUpvotes (userId,commentId) VALUES (?,?);
-
-//       `
-//       )
-//       .run(userId, commentId);
+export const upvoteComment = (userId: number, commentId: number) => {
+    db.prepare(
+       `INSERT INTO userCommentUpvotes (userId,commentId) VALUES (?,?);   `
+    ).run(userId, commentId);
+    db.prepare(
+       `UPDATE comments
+       SET upvotes = upvotes + 1 WHERE id=?;`
+    ).run(commentId);
+ };
 // export const downvoteComment = (userId: number, commentId: number) =>
 //    db
 //       .prepare(
@@ -101,12 +107,12 @@ export const getPostUpvote = (userId: number, postId: number) =>
       .prepare(`SELECT * FROM postUserUpvotes WHERE userId=? AND postId=?`)
       .get(userId, postId);
 
-      export const getPostDownvote = (userId: number, postId: number) =>
+export const getPostDownvote = (userId: number, postId: number) =>
    db
       .prepare(`SELECT * FROM postUserDownvotes WHERE userId=? AND postId=?`)
       .get(userId, postId);
 
-export const removeUpvote = (postId: number, userId: number) => {
+export const removePostUpvote = (postId: number, userId: number) => {
    db.prepare(`UPDATE posts SET upvotes = upvotes - 1  WHERE id = ?;`).run(
       postId
    );
@@ -116,13 +122,29 @@ export const removeUpvote = (postId: number, userId: number) => {
    );
 };
 
-export const removeDownvote = (postId: number, userId: number) => {
-    db.prepare(`UPDATE posts SET downvotes = downvotes - 1  WHERE id = ?;`).run(
-       postId
-    );
-    db.prepare(`DELETE FROM postUserDownvotes WHERE postId=? and userId=?;`).run(
-       postId,
-       userId
-    );
- };
- 
+export const removePostDownvote = (postId: number, userId: number) => {
+   db.prepare(`UPDATE posts SET downvotes = downvotes - 1  WHERE id = ?;`).run(
+      postId
+   );
+   db.prepare(`DELETE FROM postUserDownvotes WHERE postId=? and userId=?;`).run(
+      postId,
+      userId
+   );
+};
+
+
+export const getCommentUpvote = (userId: number, commentId: number) =>
+   db
+      .prepare(`SELECT * FROM userCommentUpvotes WHERE userId=? AND commentId=?`)
+      .get(userId, commentId);
+
+
+      export const removeCommentUpvote = (commentId: number, userId: number) => {
+        db.prepare(`UPDATE comments SET upvotes = upvotes - 1  WHERE id = ?;`).run(
+            commentId
+        );
+        db.prepare(`DELETE FROM userCommentUpvotes WHERE commentId=? and userId=?;`).run(
+            commentId,
+           userId
+        );
+     };
