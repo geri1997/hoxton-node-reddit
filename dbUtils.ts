@@ -51,7 +51,7 @@ export const getCommentsBySpecificX = (
       .prepare(`SELECT * FROM comments WHERE UPPER(${column})= UPPER(?);`)
       .all(value);
 
-export const getAllSubreddits = ():ISubreddit[] =>
+export const getAllSubreddits = (): ISubreddit[] =>
    db.prepare(`SELECT * FROM subreddits`).all();
 
 export const createSubreddit = (name: string) =>
@@ -61,3 +61,52 @@ export const getPostBySpecificX = (column: string, value: string): IPost =>
    db
       .prepare(`SELECT * FROM posts WHERE UPPER(${column})= UPPER(?);`)
       .get(value);
+
+export const upvotePost = (userId: number, postId: number) => {
+   db.prepare(
+      `INSERT INTO postUserUpvotes (userId,postId) VALUES (?,?);   `
+   ).run(userId, postId);
+   db.prepare(
+      `UPDATE posts
+      SET upvotes = upvotes + 1 WHERE id=?;`
+   ).run(postId);
+};
+// export const downvotePost = (userId: number, postId: number) => {
+//    db.prepare(`INSERT INTO postUserDownvotes (userId,postId) VALUES (?,?)`).run(
+//       userId,
+//       postId
+//    );
+//    db.prepare(
+//       `UPDATE posts
+//         SET upvotes = upvotes - 1 WHERE id=?;`
+//    ).run(postId);
+// };
+// export const upvoteComment = (userId: number, commentId: number) =>
+//    db
+//       .prepare(
+//          `INSERT INTO userCommentUpvotes (userId,commentId) VALUES (?,?);
+
+//       `
+//       )
+//       .run(userId, commentId);
+// export const downvoteComment = (userId: number, commentId: number) =>
+//    db
+//       .prepare(
+//          `INSERT INTO userCommentDownvotes (userId,commentId) VALUES (?,?)`
+//       )
+//       .run(userId, commentId);
+
+export const getPostUpvote = (userId: number, postId: number) =>
+   db
+      .prepare(`SELECT * FROM postUserUpvotes WHERE userId=? AND postId=?`)
+      .get(userId, postId);
+
+export const removeUpvote = (postId: number, userId: number) => {
+   db.prepare(`UPDATE posts SET upvotes = upvotes - 1  WHERE id = ?;`).run(
+      postId
+   );
+   db.prepare(`DELETE FROM postUserUpvotes WHERE postId=? and userId=?;`).run(
+      postId,
+      userId
+   );
+};

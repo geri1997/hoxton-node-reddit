@@ -132,3 +132,7 @@ for (const { id, userId, subredditId } of usersSubreddits) {
       `INSERT INTO usersSubreddits (id,userId,subredditId) VALUES (?,?,?)`
    ).run(id, userId, subredditId);
 }
+
+
+
+

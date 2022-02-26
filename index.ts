@@ -8,8 +8,11 @@ import {
    getAllSubreddits,
    getCommentsBySpecificX,
    getPostBySpecificX,
+   getPostUpvote,
    getSubredditBySpecificX,
    getUserBySpecificX,
+   removeUpvote,
+   upvotePost,
 } from './dbUtils';
 import { IPost } from './types';
 
@@ -141,6 +144,26 @@ app.post('/create-post', (req, res) => {
    delete postToSend.user.email;
 
    res.status(201).send(postToSend);
+});
+
+app.patch('/upvote-post/:id', (req, res) => {
+   const postId = req.params.id;
+   const { userId } = req.body;
+   if(!userId)return res.status(400).send({error:`Missing or invalid user Id!`})
+   if (!getPostBySpecificX('id', postId))
+      return res
+         .status(404)
+         .send({ error: `Post with id '${postId}' doesn't exist.` });
+   if (!getUserBySpecificX('id', userId.toString()))
+      return res
+         .status(404)
+         .send({ error: `A user with id '${userId}' doesn't exist.` });
+   if (getPostUpvote(userId, +postId)) {
+      removeUpvote(+postId, userId);
+      return res.send(getPostBySpecificX('id',postId))
+   }
+   upvotePost(userId, Number(postId));
+   res.send(getPostBySpecificX('id', postId.toString())); //needs to be a string cuz i added an UPPER to the value
 });
 
 app.listen(PORT, () => {
