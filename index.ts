@@ -4,10 +4,12 @@ import {
    createPost,
    createSubreddit,
    createUser,
+   downvoteComment,
    downvotePost,
    getAllPostsOrderedByUpvotes,
    getAllSubreddits,
    getCommentBySpecificX,
+   getCommentDownvote,
    getCommentsBySpecificX,
    getCommentUpvote,
    getPostBySpecificX,
@@ -15,6 +17,7 @@ import {
    getPostUpvote,
    getSubredditBySpecificX,
    getUserBySpecificX,
+   removeCommentDownvote,
    removeCommentUpvote,
    removePostDownvote,
    removePostUpvote,
@@ -213,25 +216,25 @@ app.patch('/downvote-post/:id', (req, res) => {
     res.send(getCommentBySpecificX('id', commentId.toString())); //needs to be a string cuz i added an UPPER to the value
  });
  
-//  app.patch('/downvote-post/:id', (req, res) => {
-//      const postId = req.params.id;
-//      const { userId } = req.body;
-//      if(!userId)return res.status(400).send({error:`Missing or invalid user Id!`})
-//      if (!getPostBySpecificX('id', postId))
-//         return res
-//            .status(404)
-//            .send({ error: `Post with id '${postId}' doesn't exist.` });
-//      if (!getUserBySpecificX('id', userId.toString()))
-//         return res
-//            .status(404)
-//            .send({ error: `A user with id '${userId}' doesn't exist.` });
-//      if (getPostDownvote(userId, +postId)) {
-//          removeDownvote(+postId, userId);
-//         return res.send(getPostBySpecificX('id',postId))
-//      }
-//      downvotePost(userId, Number(postId));
-//      res.send(getPostBySpecificX('id', postId.toString())); //needs to be a string cuz i added an UPPER to the value
-//   });
+ app.patch('/downvote-comment/:id', (req, res) => {
+    const commentId = req.params.id;
+    const { userId } = req.body;
+    if(!userId)return res.status(400).send({error:`Missing or invalid user Id!`})
+    if (!getCommentBySpecificX('id', commentId))
+       return res
+          .status(404)
+          .send({ error: `Comment with id '${commentId}' doesn't exist.` });
+    if (!getUserBySpecificX('id', userId.toString()))
+       return res
+          .status(404)
+          .send({ error: `A user with id '${userId}' doesn't exist.` });
+    if (getCommentDownvote(userId, +commentId)) {
+       removeCommentDownvote(+commentId, userId);
+       return res.send(getCommentBySpecificX('id',commentId))
+    }
+    downvoteComment(userId, Number(commentId));
+    res.send(getCommentBySpecificX('id', commentId.toString())); //needs to be a string cuz i added an UPPER to the value
+ });
 
 app.listen(PORT, () => {
    console.log(`Server running on http://localhost:${PORT}`);

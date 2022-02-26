@@ -87,20 +87,15 @@ export const downvotePost = (userId: number, postId: number) => {
    ).run(postId);
 };
 export const upvoteComment = (userId: number, commentId: number) => {
-    db.prepare(
-       `INSERT INTO userCommentUpvotes (userId,commentId) VALUES (?,?);   `
-    ).run(userId, commentId);
-    db.prepare(
-       `UPDATE comments
+   db.prepare(
+      `INSERT INTO userCommentUpvotes (userId,commentId) VALUES (?,?);   `
+   ).run(userId, commentId);
+   db.prepare(
+      `UPDATE comments
        SET upvotes = upvotes + 1 WHERE id=?;`
-    ).run(commentId);
- };
-// export const downvoteComment = (userId: number, commentId: number) =>
-//    db
-//       .prepare(
-//          `INSERT INTO userCommentDownvotes (userId,commentId) VALUES (?,?)`
-//       )
-//       .run(userId, commentId);
+   ).run(commentId);
+};
+
 
 export const getPostUpvote = (userId: number, postId: number) =>
    db
@@ -132,19 +127,47 @@ export const removePostDownvote = (postId: number, userId: number) => {
    );
 };
 
-
 export const getCommentUpvote = (userId: number, commentId: number) =>
    db
-      .prepare(`SELECT * FROM userCommentUpvotes WHERE userId=? AND commentId=?`)
+      .prepare(
+         `SELECT * FROM userCommentUpvotes WHERE userId=? AND commentId=?`
+      )
+      .get(userId, commentId);
+
+export const removeCommentUpvote = (commentId: number, userId: number) => {
+   db.prepare(`UPDATE comments SET upvotes = upvotes - 1  WHERE id = ?;`).run(
+      commentId
+   );
+   db.prepare(
+      `DELETE FROM userCommentUpvotes WHERE commentId=? and userId=?;`
+   ).run(commentId, userId);
+};
+
+export const getCommentDownvote = (userId: number, commentId: number) =>
+   db
+      .prepare(
+         `SELECT * FROM userCommentDownvotes WHERE userId=? AND commentId=?`
+      )
       .get(userId, commentId);
 
 
-      export const removeCommentUpvote = (commentId: number, userId: number) => {
-        db.prepare(`UPDATE comments SET upvotes = upvotes - 1  WHERE id = ?;`).run(
-            commentId
+      export const removeCommentDownvote = (commentId: number, userId: number) => {
+        db.prepare(`UPDATE comments SET downvotes = downvotes - 1  WHERE id = ?;`).run(
+           commentId
         );
-        db.prepare(`DELETE FROM userCommentUpvotes WHERE commentId=? and userId=?;`).run(
-            commentId,
-           userId
+        db.prepare(
+           `DELETE FROM userCommentDownvotes WHERE commentId=? and userId=?;`
+        ).run(commentId, userId);
+     };
+
+
+     export const downvoteComment = (userId: number, postId: number) => {
+        db.prepare(`INSERT INTO userCommentDownvotes (userId,commentId) VALUES (?,?)`).run(
+           userId,
+           postId
         );
+        db.prepare(
+           `UPDATE comments
+             SET downvotes = downvotes + 1 WHERE id=?;`
+        ).run(postId);
      };
