@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import {
+   createPost,
    createSubreddit,
    createUser,
    getAllPostsOrderedByUpvotes,
@@ -97,12 +98,47 @@ app.get('/posts/:id', (req, res) => {
    if (!post)
       return res.status(404).send({ error: `Post with id ${id} not found! ` });
 
-      post.user=getUserBySpecificX('id',post.userId!.toString())
-      delete post.userId
-      delete post.user.password
-      delete post.user.email
+   post.user = getUserBySpecificX('id', post.userId!.toString());
+   delete post.userId;
+   delete post.user.password;
+   delete post.user.email;
 
    res.send(post);
+});
+
+app.post('/create-post', (req, res) => {
+   const { userId, content, subredditId } = req.body;
+   const errors = [];
+
+   if (typeof content !== 'string' || content.length === 0)
+      errors.push('Content not a string or too short!');
+   if (
+      typeof userId !== 'number' ||
+      !getUserBySpecificX('id', userId.toString())
+   )
+      errors.push(
+         `User ID is not a number or a user with this id doesn't exist!`
+      );
+   if (
+      typeof subredditId !== 'number' ||
+      !getSubredditBySpecificX('id', subredditId.toString())
+   )
+      errors.push(
+         `Subreddit ID is not a number or a subreddit with this id doesn't exist!`
+      );
+
+   if (errors.length !== 0) return res.status(400).send(errors);
+
+   const postToSend = getPostBySpecificX(
+      'id',
+      createPost(content, userId, subredditId).lastInsertRowid.toString()
+   );
+   postToSend.user = getUserBySpecificX('id', postToSend.userId!.toString());
+   delete postToSend.userId;
+   delete postToSend.user.password;
+   delete postToSend.user.email;
+
+   res.status(201).send(postToSend);
 });
 
 app.listen(PORT, () => {
