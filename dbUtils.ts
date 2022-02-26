@@ -51,10 +51,13 @@ export const getCommentsBySpecificX = (
       .prepare(`SELECT * FROM comments WHERE UPPER(${column})= UPPER(?);`)
       .all(value);
 
-export const getAllSubreddits = () =>
+export const getAllSubreddits = ():ISubreddit[] =>
    db.prepare(`SELECT * FROM subreddits`).all();
 
-   export const createSubreddit = (name: string) =>
+export const createSubreddit = (name: string) =>
+   db.prepare(`INSERT INTO subreddits (name) VALUES (?)`).run(name);
+
+export const getPostBySpecificX = (column: string, value: string): IPost =>
    db
-      .prepare(`INSERT INTO subreddits (name) VALUES (?)`)
-      .run(name);
+      .prepare(`SELECT * FROM posts WHERE UPPER(${column})= UPPER(?);`)
+      .get(value);

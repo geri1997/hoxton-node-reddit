@@ -1,11 +1,12 @@
 import express from 'express';
 import cors from 'cors';
 import {
-    createSubreddit,
+   createSubreddit,
    createUser,
    getAllPostsOrderedByUpvotes,
    getAllSubreddits,
    getCommentsBySpecificX,
+   getPostBySpecificX,
    getSubredditBySpecificX,
    getUserBySpecificX,
 } from './dbUtils';
@@ -70,17 +71,39 @@ app.get('/posts', (req, res) => {
    res.send(posts);
 });
 
-app.get('/subreddits',(req,res)=>{
-    res.send(getAllSubreddits())
-})
+app.get('/subreddits', (req, res) => {
+   res.send(getAllSubreddits());
+});
 
-app.post('/create-subreddit',(req,res)=>{
-    const {name}=req.body
+app.post('/create-subreddit', (req, res) => {
+   const { name } = req.body;
 
-    if(typeof name!=='string'||name.length===0)return res.status(400).send({error:'Subreddit name not a string or too short!'})
-    
-    res.status(201).send(getSubredditBySpecificX('id',createSubreddit(name).lastInsertRowid.toString()))
-})
+   if (typeof name !== 'string' || name.length === 0)
+      return res
+         .status(400)
+         .send({ error: 'Subreddit name not a string or too short!' });
+
+   res.status(201).send(
+      getSubredditBySpecificX(
+         'id',
+         createSubreddit(name).lastInsertRowid.toString()
+      )
+   );
+});
+
+app.get('/posts/:id', (req, res) => {
+   const id = req.params.id;
+   const post = getPostBySpecificX('id', id);
+   if (!post)
+      return res.status(404).send({ error: `Post with id ${id} not found! ` });
+
+      post.user=getUserBySpecificX('id',post.userId!.toString())
+      delete post.userId
+      delete post.user.password
+      delete post.user.email
+
+   res.send(post);
+});
 
 app.listen(PORT, () => {
    console.log(`Server running on http://localhost:${PORT}`);
