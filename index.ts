@@ -67,6 +67,8 @@ app.get('/posts', (req, res) => {
       post.comments = postComments;
       delete post.subredditId;
       delete post.userId;
+      delete post.user.password;
+      delete post.user.email;
    }
 
    res.send(posts);
