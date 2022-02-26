@@ -12,6 +12,10 @@ const db = new Database('./data.db', {
 });
 
 db.exec(`
+DROP TABLE IF EXISTS postUserUpvotes ;
+DROP TABLE IF EXISTS postUserDownvotes ;
+DROP TABLE IF EXISTS userCommentUpvotes ;
+DROP TABLE IF EXISTS userCommentDownvotes ;
 DROP TABLE IF EXISTS comments ;
 DROP TABLE IF EXISTS posts ;
 
@@ -65,6 +69,38 @@ CREATE TABLE IF NOT EXISTS "users" (
       "subredditId" INTEGER NOT NULL,
       FOREIGN KEY (userId) REFERENCES users(id),
       FOREIGN KEY (subredditId) REFERENCES subreddits(id)
+     );
+
+     CREATE TABLE IF NOT EXISTS "postUserUpvotes" (
+        "id" INTEGER PRIMARY KEY,
+       "userId" INTEGER NOT NULL,
+      "postId" INTEGER NOT NULL,
+      FOREIGN KEY (userId) REFERENCES users(id),
+      FOREIGN KEY (postId) REFERENCES posts(id)
+     );
+
+     CREATE TABLE IF NOT EXISTS "postUserDownvotes" (
+        "id" INTEGER PRIMARY KEY,
+       "userId" INTEGER NOT NULL,
+      "postId" INTEGER NOT NULL,
+      FOREIGN KEY (userId) REFERENCES users(id),
+      FOREIGN KEY (postId) REFERENCES posts(id)
+     );
+
+     CREATE TABLE IF NOT EXISTS "userCommentUpvotes" (
+        "id" INTEGER PRIMARY KEY,
+       "userId" INTEGER NOT NULL,
+      "commentId" INTEGER NOT NULL,
+      FOREIGN KEY (userId) REFERENCES users(id),
+      FOREIGN KEY (commentId) REFERENCES comments(id)
+     );
+
+     CREATE TABLE IF NOT EXISTS "userCommentDownvotes" (
+        "id" INTEGER PRIMARY KEY,
+       "userId" INTEGER NOT NULL,
+      "commentId" INTEGER NOT NULL,
+      FOREIGN KEY (userId) REFERENCES users(id),
+      FOREIGN KEY (commentId) REFERENCES comments(id)
      );
   
 `);
