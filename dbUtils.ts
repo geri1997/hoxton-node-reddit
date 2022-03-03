@@ -21,6 +21,11 @@ export const createUser = (username: string, email: string, password: string) =>
       .prepare(`INSERT INTO users (username,email,password) VALUES (?, ?, ?)`)
       .run(username, email, password);
 
+      export const createComment = (postId:number,content:string,userId:number) =>
+   db
+      .prepare(`INSERT INTO comments (postId,content,userId) VALUES (?, ?, ?)`)
+      .run(postId,content,userId);
+
 export const getUserBySpecificX = (column: string, value: string): IUser =>
    db
       .prepare(`SELECT * FROM users WHERE UPPER(${column})= UPPER(?);`)

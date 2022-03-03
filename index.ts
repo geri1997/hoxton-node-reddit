@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import {
+   createComment,
    createPost,
    createSubreddit,
    createUser,
@@ -226,7 +227,15 @@ app.patch('/downvote-post/:id', (req, res) => {
     res.send(getCommentBySpecificX('id', commentId.toString())); //needs to be a string cuz i added an UPPER to the value
  });
  
+app.post('/create-comment',(req,res)=>{
+   const {postId,content,userId} = req.body
+   if(!getPostBySpecificX('id',postId.toString()))return res.status(404).send({error:`A post with id '${postId}' doen't exist!`})
+   if(!getUserBySpecificX('id',userId.toString()))return res.status(404).send({error:`A user with id '${userId}' doen't exist!`})
+   if(typeof content!=='string')return res.status(400).send({error:`Content is missing or not a string!`})
 
+   const info = createComment(postId,content,userId)
+   return res.status(201).send(getCommentBySpecificX('id',info.lastInsertRowid.toString()))
+})
 
  app.patch('/downvote-comment/:id', (req, res) => {
     const commentId = req.params.id;
