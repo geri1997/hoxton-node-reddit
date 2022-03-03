@@ -172,6 +172,9 @@ app.patch('/upvote-post/:id', (req, res) => {
       removePostUpvote(+postId, userId);
       return res.send(getPostBySpecificX('id',postId))
    }
+   if(getPostDownvote(userId,+postId)){
+      removePostDownvote(+postId,userId)
+   }
    upvotePost(userId, Number(postId));
    res.send(getPostBySpecificX('id', postId.toString())); //needs to be a string cuz i added an UPPER to the value
 });
@@ -192,6 +195,9 @@ app.patch('/downvote-post/:id', (req, res) => {
         removePostDownvote(+postId, userId);
        return res.send(getPostBySpecificX('id',postId))
     }
+    if(getPostUpvote(userId,+postId)){
+      removePostUpvote(+postId,userId)
+   }
     downvotePost(userId, Number(postId));
     res.send(getPostBySpecificX('id', postId.toString())); //needs to be a string cuz i added an UPPER to the value
  });
@@ -212,10 +218,16 @@ app.patch('/downvote-post/:id', (req, res) => {
        removeCommentUpvote(+commentId, userId);
        return res.send(getCommentBySpecificX('id',commentId))
     }
+    if(getCommentDownvote(userId,+commentId)){
+      removeCommentDownvote(+commentId,userId)
+   }
+    
     upvoteComment(userId, Number(commentId));
     res.send(getCommentBySpecificX('id', commentId.toString())); //needs to be a string cuz i added an UPPER to the value
  });
  
+
+
  app.patch('/downvote-comment/:id', (req, res) => {
     const commentId = req.params.id;
     const { userId } = req.body;
@@ -231,6 +243,9 @@ app.patch('/downvote-post/:id', (req, res) => {
     if (getCommentDownvote(userId, +commentId)) {
        removeCommentDownvote(+commentId, userId);
        return res.send(getCommentBySpecificX('id',commentId))
+    }
+    if(getCommentUpvote(userId,+commentId)){
+       removeCommentUpvote(+commentId,userId)
     }
     downvoteComment(userId, Number(commentId));
     res.send(getCommentBySpecificX('id', commentId.toString())); //needs to be a string cuz i added an UPPER to the value
